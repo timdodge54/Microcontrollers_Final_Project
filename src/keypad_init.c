@@ -48,7 +48,7 @@ void I2C_Initialization(I2C_TypeDef *I2Cx)
 	I2Cx->CR1 &= ~I2C_CR1_ANFOFF;
 	I2Cx->CR1 &= ~I2C_CR1_DNF;
 	I2Cx->CR1 |= ~I2C_CR1_ERRIE;
-	I2Cx->CR1 &= ~I2C_CR1_SMBUS;
+	I2Cx->CR1 &= ~I2C_CR1_SMBHEN;
 	I2Cx->CR1 &= ~I2C_CR1_NOSTRETCH;
 
 	I2Cx->TIMINGR = 0;
@@ -65,19 +65,19 @@ void I2C_Initialization(I2C_TypeDef *I2Cx)
 	I2Cx->OAR1 &= ~I2C_OAR2_OA2EN;
 
 	I2Cx->CR2 &= ~I2C_CR2_ADD10;
-	I2Cx->CR2 & = I2C2_CR2_AUTOEND;
+	I2Cx->CR2 &= I2C_CR2_AUTOEND;
 	I2Cx->CR2 &= ~I2C_CR2_NACK;
 	I2Cx->CR2 &= ~I2C_CR2_RELOAD;
 }
 
-void I2C_Start(I2C_TypeDef *I2Cx, uint8_t DevAddress, uint8_t Size, uint8_t Direction)
+void I2C_Start(I2C_TypeDef *I2Cx, uint8_t DevAddress, uint8_t Size, uint32_t Direction)
 {
 	// Direction = 0: Master requests a write transfer
 	// Direction = 1: Master requests a read transfer
 
 	uint32_t tmpreg = I2Cx->CR2;
 	tmpreg &= (uint32_t) ~((uint32_t)((I2C_CR2_SADD | I2C_CR2_NBYTES | I2C_CR2_RELOAD | I2C_CR2_AUTOEND | I2C_CR2_RD_WRN | I2C_CR2_START | I2C_CR2_STOP)));
-	if (Direction == READ_FROM_SLAVE)
+	if (Direction == I2C_ISR_DIR)
 	{
 		tmpreg |= I2C_CR2_RD_WRN; // Read from slave
 	}
@@ -85,7 +85,7 @@ void I2C_Start(I2C_TypeDef *I2Cx, uint8_t DevAddress, uint8_t Size, uint8_t Dire
 	{
 		tmpreg &= ~I2C_CR2_RD_WRN; // Write to slave
 	}
-	tmpreg |= (uint32_t)(((uint32_t)DevAddress & I2C_CR2_SADD) | (((uint32_t)Size << 16) & I2C_CR2_NBYTES))
+	tmpreg |= (uint32_t)(((uint32_t)DevAddress & I2C_CR2_SADD) | (((uint32_t)Size << 16) & I2C_CR2_NBYTES));
 		tmpreg |= I2C_CR2_START;
 	I2Cx->CR2 = tmpreg;
 }
@@ -151,7 +151,7 @@ int8_t I2C_SendData(I2C_TypeDef *I2Cx, uint8_t SlaveAddress, uint8_t *pData, uin
 		return -1;
 	}
 	I2C_Stop(I2Cx);
-	return 0
+	return 0;
 }
 
 void keypad_main(void)
@@ -159,14 +159,14 @@ void keypad_main(void)
 	// system clock init
 	RCC->AHB2ENR |= RCC_AHB2ENR_GPIOBEN;
 	RCC->CR |= RCC_CR_HSION;
-	while (RCC->CR & RCC_CR_HSIRDY == 0)
+	while (RCC->CR && RCC_CR_HSIRDY == 0)
 		;
 	RCC->CFGR &= RCC_CFGR_SW_HSI;
 
-	pinMode(GPIOB, 6, 0b00);
-	pinMode(GPIOB, 7, 0b00);
-	setPullUpDown(GPIOB, 6, 0b01);
-	setPullUpDown(GPIOB, 7, 0b01);
-	setOutputType(GPIOB, 6, 0b1);
-	setOutputType(GPIOB, 7, 0b1);
+	pinMode(GPIOB, 6, 0x10);
+	pinMode(GPIOB, 7, 0x10);
+	setPullUpDown(GPIOB, 6, 0x1);
+	setPullUpDown(GPIOB, 7, 0x1);
+	setOutputType(GPIOB, 6, 0x1);
+	setOutputType(GPIOB, 7, 0x1);
 }
