@@ -6,7 +6,11 @@
 
 void I2C_Initialization(I2C_TypeDef *I2Cx);
 
+<<<<<<< HEAD
 void I2C_Start(I2C_TypeDef *I2Cx, uint8_t DevAddress, uint8_t Size, uint32_t Direction);
+=======
+void I2C_Start(I2C_TypeDef *I2Cx, uint8_t DevAddress, uint8_t Size, uint8_t Direction);
+>>>>>>> 89dbb80267b60156c83e963b621ffb413519064e
 void I2C_Stop(I2C_TypeDef *I2Cx);
 void I2C_WaitLineIdle(I2C_TypeDef *I2Cx);
 int8_t I2C_RecieveData(I2C_TypeDef *I2Cx, uint8_t SlaveAddress, uint8_t *pData, uint8_t Size);
@@ -21,5 +25,8 @@ void digitalWrite(GPIO_TypeDef *port, unsigned int pin, unsigned int value);
 
 unsigned int digitalRead(GPIO_TypeDef *port, unsigned int pin);
 void keypad_main(void);
+<<<<<<< HEAD
 
+=======
+>>>>>>> 89dbb80267b60156c83e963b621ffb413519064e
 #endif

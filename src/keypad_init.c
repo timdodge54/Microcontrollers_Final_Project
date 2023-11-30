@@ -86,7 +86,11 @@ void I2C_Start(I2C_TypeDef *I2Cx, uint8_t DevAddress, uint8_t Size, uint32_t Dir
 		tmpreg &= ~I2C_CR2_RD_WRN; // Write to slave
 	}
 	tmpreg |= (uint32_t)(((uint32_t)DevAddress & I2C_CR2_SADD) | (((uint32_t)Size << 16) & I2C_CR2_NBYTES));
+<<<<<<< HEAD
 		tmpreg |= I2C_CR2_START;
+=======
+	tmpreg |= I2C_CR2_START;
+>>>>>>> 89dbb80267b60156c83e963b621ffb413519064e
 	I2Cx->CR2 = tmpreg;
 }
 void I2C_Stop(I2C_TypeDef *I2Cx)
@@ -163,10 +167,19 @@ void keypad_main(void)
 		;
 	RCC->CFGR &= RCC_CFGR_SW_HSI;
 
+<<<<<<< HEAD
 	pinMode(GPIOB, 6, 0x10);
 	pinMode(GPIOB, 7, 0x10);
 	setPullUpDown(GPIOB, 6, 0x1);
 	setPullUpDown(GPIOB, 7, 0x1);
 	setOutputType(GPIOB, 6, 0x1);
 	setOutputType(GPIOB, 7, 0x1);
+=======
+	pinMode(GPIOB, 8, 0b00);
+	pinMode(GPIOB, 9, 0b00);
+	setPullUpDown(GPIOB, 8, 0b01);
+	setPullUpDown(GPIOB, 9, 0b01);
+	setOutputType(GPIOB, 8, 0b1);
+	setOutputType(GPIOB, 9, 0b1);
+>>>>>>> 89dbb80267b60156c83e963b621ffb413519064e
 }
