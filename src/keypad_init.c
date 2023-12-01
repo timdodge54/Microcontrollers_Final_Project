@@ -51,11 +51,11 @@ void I2C_Initialization(I2C_TypeDef *I2Cx)
 	RCC->CCIPR &= ~RCC_CCIPR_I2C1SEL;
 	RCC->CCIPR |= RCC_CCIPR_I2C1SEL_0; // Select SYSCLK as clock source for I2C1
 
-	RCC->APB1ENR1 |= RCC_APB1RSTR1_I2C1RST;	  // 1 = Reset I2C1
+	RCC->APB1RSTR1 |= RCC_APB1RSTR1_I2C1RST;	  // 1 = Reset I2C1
+	for (int i = 0; i < 4000; ++i);
 	RCC->APB1RSTR1 &= ~RCC_APB1RSTR1_I2C1RST; // Complete the reset of I2C1
 	
-	RCC -> AHB2ENR |= ~RCC_AHB2ENR_GPIOBEN;
-
+	
 	// I2C CR1 Configuration
 	// When the I2C is disabled (PE=0), the I2C performs a software reset
 	I2Cx->CR1 &= ~I2C_CR1_PE; // 0 = Peripheral disabled
@@ -82,6 +82,7 @@ void I2C_Initialization(I2C_TypeDef *I2Cx)
 	I2Cx->CR2 &= I2C_CR2_AUTOEND;
 	I2Cx->CR2 &= ~I2C_CR2_NACK;
 	I2Cx->CR2 &= ~I2C_CR2_RELOAD;
+	I2Cx->CR1 |= I2C_CR1_PE;
 }
 
 void I2C_Start(I2C_TypeDef *I2Cx, uint8_t DevAddress, uint8_t Size, uint32_t Direction)
@@ -153,6 +154,13 @@ int8_t I2C_SendData(I2C_TypeDef *I2Cx, uint8_t SlaveAddress, uint8_t *pData, uin
 
 	for (i = 0; i < Size; ++i)
 	{
+		
+		uint32_t stuff = I2C_ISR_TXIS;
+		
+		uint32_t other_stuff = I2Cx->ISR;
+		
+		uint32_t together = other_stuff & stuff;
+		
 		while ((I2Cx->ISR & I2C_ISR_TXIS) == 0)
 			;
 		I2Cx->TXDR = pData[i] & I2C_TXDR_TXDATA;
@@ -196,6 +204,8 @@ void buzzer_setup(void)
 void keypad_main(void)
 {
 	// system clock init
+	RCC -> AHB2ENR |= RCC_AHB2ENR_GPIOBEN;
+
 
 	pinMode(GPIOB, 8, 0x10);
 	pinMode(GPIOB, 9, 0x10);
