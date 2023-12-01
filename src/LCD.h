@@ -5,13 +5,13 @@
 #define __STM32L476R_NUCLEO_LCD_H
 
 
-void delay_ms(unsigned int ms);
-void delay_micros(unsigned int micro_s); 
-void LCD_WriteCom(unsigned char com);
-void LCD_Init(void);
-void LCD_Clear(void);
-void LCD_DisplayString(unsigned int line_num, unsigned char *ptr);
-void LCD_SendChar(unsigned char c);
-void LCD_Pulse(void);
+void pinMode(GPIO_TypeDef *port, unsigned int pin, unsigned int mode);
 
+void setOutputType(GPIO_TypeDef *port, unsigned int pin, unsigned int type);
+
+void setPullUpDown(GPIO_TypeDef *port, unsigned int pin, unsigned int pupd);
+
+void digitalWrite(GPIO_TypeDef *port, unsigned int pin, unsigned int value);
+
+unsigned int digitalRead(GPIO_TypeDef *port, unsigned int pin);
 #endif
