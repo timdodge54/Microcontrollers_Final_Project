@@ -3,7 +3,8 @@
 void pinMode(GPIO_TypeDef *port, unsigned int pin, unsigned int mode)
 {
 	// port->MODER = ...................
-	port->MODER = (port->MODER & ~(0x3u << (pin * 2))) | (mode << (pin * 2));
+	uint32_t shifted_mode = (port->MODER & ~(0x3u << (pin * 2))) | (mode << (pin * 2));
+	port->MODER = shifted_mode;
 }
 
 void setOutputType(GPIO_TypeDef *port, unsigned int pin, unsigned int type)
@@ -30,6 +31,17 @@ unsigned int digitalRead(GPIO_TypeDef *port, unsigned int pin)
 	return ((port->IDR >> pin) & 0x1u);
 }
 
+void setAlternateMode0(GPIO_TypeDef *port, unsigned int pin, unsigned int mode)
+{
+	// port->AFR = ...................
+	
+	uint32_t before = port->AFR[0];
+	port->AFR[0] = (port->AFR[0] & (0x0u << (pin * 4))) | (mode << (pin * 4));
+	uint32_t stfu = port->AFR[0];
+	uint32_t stuff = 0x1;
+}
+
+
 void I2C_Initialization(I2C_TypeDef *I2Cx)
 {
 	uint32_t OwnAddr = 0x52;			  // Own address of the I2C peripheral
@@ -41,6 +53,8 @@ void I2C_Initialization(I2C_TypeDef *I2Cx)
 
 	RCC->APB1ENR1 |= RCC_APB1RSTR1_I2C1RST;	  // 1 = Reset I2C1
 	RCC->APB1RSTR1 &= ~RCC_APB1RSTR1_I2C1RST; // Complete the reset of I2C1
+	
+	RCC -> AHB2ENR |= ~RCC_AHB2ENR_GPIOBEN;
 
 	// I2C CR1 Configuration
 	// When the I2C is disabled (PE=0), the I2C performs a software reset
@@ -86,11 +100,7 @@ void I2C_Start(I2C_TypeDef *I2Cx, uint8_t DevAddress, uint8_t Size, uint32_t Dir
 		tmpreg &= ~I2C_CR2_RD_WRN; // Write to slave
 	}
 	tmpreg |= (uint32_t)(((uint32_t)DevAddress & I2C_CR2_SADD) | (((uint32_t)Size << 16) & I2C_CR2_NBYTES));
-<<<<<<< HEAD
-		tmpreg |= I2C_CR2_START;
-=======
 	tmpreg |= I2C_CR2_START;
->>>>>>> 89dbb80267b60156c83e963b621ffb413519064e
 	I2Cx->CR2 = tmpreg;
 }
 void I2C_Stop(I2C_TypeDef *I2Cx)
@@ -157,29 +167,43 @@ int8_t I2C_SendData(I2C_TypeDef *I2Cx, uint8_t SlaveAddress, uint8_t *pData, uin
 	I2C_Stop(I2Cx);
 	return 0;
 }
+void buzzer(void)
+{
+	for (int i = 0; i < 440; ++i)
+	{
+		for (int j = 0; j < 9091; ++j)
+		{
+			continue;
+		}
+		if (i % 2 == 0)
+		{
+			digitalWrite(GPIOC, 0x0u, 0x1u);
+		}
+		else
+		{
+			digitalWrite(GPIOC, 0x0u, 0x0u);
+		}
+	}
+	digitalWrite(GPIOC, 0x0u, 0x0u);
+}
+
+void buzzer_setup(void)
+{
+	pinMode(GPIOB, 0, 0x1u);
+	setOutputType(GPIOB, 0, 0x0u);
+}
 
 void keypad_main(void)
 {
 	// system clock init
-	RCC->AHB2ENR |= RCC_AHB2ENR_GPIOBEN;
-	RCC->CR |= RCC_CR_HSION;
-	while (RCC->CR && RCC_CR_HSIRDY == 0)
-		;
-	RCC->CFGR &= RCC_CFGR_SW_HSI;
 
-<<<<<<< HEAD
-	pinMode(GPIOB, 6, 0x10);
-	pinMode(GPIOB, 7, 0x10);
-	setPullUpDown(GPIOB, 6, 0x1);
-	setPullUpDown(GPIOB, 7, 0x1);
-	setOutputType(GPIOB, 6, 0x1);
-	setOutputType(GPIOB, 7, 0x1);
-=======
-	pinMode(GPIOB, 8, 0b00);
-	pinMode(GPIOB, 9, 0b00);
-	setPullUpDown(GPIOB, 8, 0b01);
-	setPullUpDown(GPIOB, 9, 0b01);
-	setOutputType(GPIOB, 8, 0b1);
-	setOutputType(GPIOB, 9, 0b1);
->>>>>>> 89dbb80267b60156c83e963b621ffb413519064e
+	pinMode(GPIOB, 8, 0x10);
+	pinMode(GPIOB, 9, 0x10);
+	setPullUpDown(GPIOB, 8, 0x1);
+	setPullUpDown(GPIOB, 9, 0x1);
+	setOutputType(GPIOB, 8, 0x1);
+	setOutputType(GPIOB, 9, 0x1);
+	setAlternateMode0(GPIOB, 8, 0x4);
+	setAlternateMode0(GPIOB, 9, 0x4);
+	
 }
