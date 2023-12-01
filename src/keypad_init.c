@@ -1,5 +1,35 @@
 #include "keypad_init.h"
 
+void pinMode(GPIO_TypeDef *port, unsigned int pin, unsigned int mode)
+{
+	// port->MODER = ...................
+	port->MODER = (port->MODER & ~(0x3u << (pin * 2))) | (mode << (pin * 2));
+}
+
+void setOutputType(GPIO_TypeDef *port, unsigned int pin, unsigned int type)
+{
+	// port->OTYPER = ...................
+	port->OTYPER = (port->OTYPER & ~(0x1u << (pin))) | (type << (pin));
+}
+
+void setPullUpDown(GPIO_TypeDef *port, unsigned int pin, unsigned int pupd)
+{
+	// port->PUPDR = ...................
+	port->PUPDR = (port->PUPDR & ~(0x3u << (pin * 2))) | (pupd << (pin * 2));
+}
+
+void digitalWrite(GPIO_TypeDef *port, unsigned int pin, unsigned int value)
+{
+	// port->ODR = ...................
+	port->ODR = (port->ODR & ~(0x1u << (pin))) | (value << (pin));
+}
+
+unsigned int digitalRead(GPIO_TypeDef *port, unsigned int pin)
+{
+	// return ...................
+	return ((port->IDR >> pin) & 0x1u);
+}
+
 void I2C_Initialization(I2C_TypeDef *I2Cx)
 {
 	uint32_t OwnAddr = 0x52;			  // Own address of the I2C peripheral
@@ -122,4 +152,21 @@ int8_t I2C_SendData(I2C_TypeDef *I2Cx, uint8_t SlaveAddress, uint8_t *pData, uin
 	}
 	I2C_Stop(I2Cx);
 	return 0
+}
+
+void keypad_main(void)
+{
+	// system clock init
+	RCC->AHB2ENR |= RCC_AHB2ENR_GPIOBEN;
+	RCC->CR |= RCC_CR_HSION;
+	while (RCC->CR & RCC_CR_HSIRDY == 0)
+		;
+	RCC->CFGR &= RCC_CFGR_SW_HSI;
+
+	pinMode(GPIOB, 6, 0b00);
+	pinMode(GPIOB, 7, 0b00);
+	setPullUpDown(GPIOB, 6, 0b01);
+	setPullUpDown(GPIOB, 7, 0b01);
+	setOutputType(GPIOB, 6, 0b1);
+	setOutputType(GPIOB, 7, 0b1);
 }
