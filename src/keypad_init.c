@@ -85,7 +85,7 @@ void I2C_Start(I2C_TypeDef *I2Cx, uint8_t DevAddress, uint8_t Size, uint8_t Dire
 	{
 		tmpreg &= ~I2C_CR2_RD_WRN; // Write to slave
 	}
-	tmpreg |= (uint32_t)(((uint32_t)DevAddress & I2C_CR2_SADD) | (((uint32_t)Size << 16) & I2C_CR2_NBYTES))
+	tmpreg |= (uint32_t)(((uint32_t)DevAddress & I2C_CR2_SADD) | (((uint32_t)Size << 16) & I2C_CR2_NBYTES));
 		tmpreg |= I2C_CR2_START;
 	I2Cx->CR2 = tmpreg;
 }
@@ -151,7 +151,7 @@ int8_t I2C_SendData(I2C_TypeDef *I2Cx, uint8_t SlaveAddress, uint8_t *pData, uin
 		return -1;
 	}
 	I2C_Stop(I2Cx);
-	return 0
+	return 0;
 }
 
 void keypad_main(void)
