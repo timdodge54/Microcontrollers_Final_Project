@@ -3,6 +3,14 @@
 #include "stddef.h"
 #ifndef __STM32L476R_NUCLEO_keypad_init_H
 #define __STM32L476R_NUCLEO_keypad_init_H
+// List of freqencies for each note in the octave
+// [C, D, E, F, G, A, B]
+const int static THIRD[7] = {131, 147, 165, 175, 196, 220, 247};
+const int static FOURTH[7] = {262, 294, 330, 349, 392, 440, 494};
+const int static FIFTH[7] = {523, 587, 659, 699, 784, 880, 988};
+volatile int static PREVIOUS_NOTE = 0;
+
+
 
 void I2C_Initialization(I2C_TypeDef *I2Cx);
 
@@ -21,6 +29,5 @@ void digitalWrite(GPIO_TypeDef *port, unsigned int pin, unsigned int value);
 void setAlternateMode0(GPIO_TypeDef *port, unsigned int pin, unsigned int mode);
 unsigned int digitalRead(GPIO_TypeDef *port, unsigned int pin);
 void keypad_main(void);
-void buzzer_setup(void);
-void buzzer(void);
+
 #endif

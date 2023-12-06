@@ -175,31 +175,7 @@ int8_t I2C_SendData(I2C_TypeDef *I2Cx, uint8_t SlaveAddress, uint8_t *pData, uin
 	I2C_Stop(I2Cx);
 	return 0;
 }
-void buzzer(void)
-{
-	for (int i = 0; i < 440; ++i)
-	{
-		for (int j = 0; j < 9091; ++j)
-		{
-			continue;
-		}
-		if (i % 2 == 0)
-		{
-			digitalWrite(GPIOC, 0x0u, 0x1u);
-		}
-		else
-		{
-			digitalWrite(GPIOC, 0x0u, 0x0u);
-		}
-	}
-	digitalWrite(GPIOC, 0x0u, 0x0u);
-}
 
-void buzzer_setup(void)
-{
-	pinMode(GPIOB, 0, 0x1u);
-	setOutputType(GPIOB, 0, 0x0u);
-}
 
 void keypad_main(void)
 {
