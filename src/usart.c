@@ -62,15 +62,26 @@ void USART_drive(void){
 }
 
 void USART2_IRQHandler(void) {
-	UReceive(USART2, &note_buffer, note_counter);
+	if (USART2->RDR == ',' || USART2->RDR == '.'){
+		UReceive(USART2, &sign_of_weight, note_counter);
+	}else if ( USART2->RDR < 0x58){
+		UReceive(USART2, &sharpen_flatten, 3);
+	} else if (USART2->RDR == 2){
+		sharpen_flatten[0] = 0;
+		sharpen_flatten[1] = 0;
+		sharpen_flatten[2] = 0;
+	}else {
+		UReceive(USART2, &note_buffer, note_counter);
+	}
+	
 }
 
 void UReceive(USART_TypeDef *USARTx, uint8_t * buffer, uint32_t nBytes){
 	int i;
 	for (i = 0; i < nBytes; ++i){
-		if (USARTx->ISR & USART_ISR_RXNE){// Wait until hardware sets RXE
+		//if (USARTx->ISR & USART_ISR_RXNE){// Wait until hardware sets RXE
 			buffer[i] = USARTx->RDR;
-		} 
+		//} 
 	}
 }
 
@@ -164,80 +175,133 @@ void TIM4_Init(void){
 void buzzer(void)
 {	
 	// If the letter given is not in the switch statement, use A
-	int note;
-	switch (note_buffer) {
-    case 'q':
-        note = THIRD[0];
-        break;
-    case 'w':
-        note = THIRD[1];
-        break;
-    case 'e':
-        note = THIRD[2];
-        break;
-    case 'r':
-        note = THIRD[3];
-        break;
-    case 't':
-        note = THIRD[4];
-        break;
-    case 'y':
-        note = THIRD[5];
-        break;
-    case 'u':
-        note = THIRD[6];
-        break;
-    case 'a':
-        note = FOURTH[0];
-        break;
-    case 's':
-        note = FOURTH[1];
-        break;
-    case 'd':
-        note = FOURTH[2];
-        break;
-    case 'f':
-        note = FOURTH[3];
-        break;
-    case 'g':
-        note = FOURTH[4];
-        break;
-    case 'h':
-        note = FOURTH[5];
-        break;
-    case 'j':
-        note = FOURTH[6];
-        break;
-    case 'z':
-        note = FIFTH[0];
-        break;
-    case 'x':
-        note = FIFTH[1];
-        break;
-    case 'c':
-        note = FIFTH[2];
-        break;
-    case 'v':
-        note = FIFTH[3];
-        break;
-    case 'b':
-        note = FIFTH[4];
-        break;
-    case 'n':
-        note = FIFTH[5];
-        break;
-    case 'm':
-        note = FIFTH[6];
-        break;
-    // Add more cases if needed
-    default:
-        note = 0;
-        break;
-}
+	int volatile note;
+	uint8_t volatile up_diff = 0;
+	uint8_t volatile down_diff = 0;
 
+
+	switch (note_buffer) {
+			case 'q':
+					note = THIRD[0];
+					up_diff = THIRD[1] - THIRD[0];
+					break;
+			case 'w':
+					note = THIRD[1];
+					up_diff = THIRD[2] - THIRD[1];
+					down_diff = THIRD[1] - THIRD[0];
+					break;
+			case 'e':
+					note = THIRD[2];
+					up_diff = THIRD[3] - THIRD[2];
+					down_diff = THIRD[2] - THIRD[1];
+					break;
+			case 'r':
+					note = THIRD[3];
+					up_diff = THIRD[4] - THIRD[3];
+					down_diff = THIRD[3] - THIRD[2];
+					break;
+			case 't':
+					note = THIRD[4];
+					up_diff = THIRD[5] - THIRD[4];
+					down_diff = THIRD[4] - THIRD[3];
+					break;
+			case 'y':
+					note = THIRD[5];
+					up_diff = THIRD[6] - THIRD[5];
+					down_diff = THIRD[5] - THIRD[4];
+					break;
+			case 'u':
+					note = THIRD[6];
+					down_diff = THIRD[6] - THIRD[5];
+					break;
+			case 'a':
+					note = FOURTH[0];
+					up_diff = FOURTH[1] - FOURTH[0];
+					down_diff = FOURTH[0] - THIRD[6];  // Assuming there is a connection between arrays
+					break;
+			case 's':
+					note = FOURTH[1];
+					up_diff = FOURTH[2] - FOURTH[1];
+					down_diff = FOURTH[1] - FOURTH[0];
+					break;
+			case 'd':
+					note = FOURTH[2];
+					up_diff = FOURTH[3] - FOURTH[2];
+					down_diff = FOURTH[2] - FOURTH[1];
+					break;
+			case 'f':
+					note = FOURTH[3];
+					up_diff = FOURTH[4] - FOURTH[3];
+					down_diff = FOURTH[3] - FOURTH[2];
+					break;
+			case 'g':
+					note = FOURTH[4];
+					up_diff = FOURTH[5] - FOURTH[4];
+					down_diff = FOURTH[4] - FOURTH[3];
+					break;
+			case 'h':
+					note = FOURTH[5];
+					up_diff = FOURTH[6] - FOURTH[5];
+					down_diff = FOURTH[5] - FOURTH[4];
+					break;
+			case 'j':
+					note = FOURTH[6];
+					down_diff = FOURTH[6] - FOURTH[5];
+					break;
+			case 'z':
+					note = FIFTH[0];
+					up_diff = FIFTH[1] - FIFTH[0];
+					down_diff = FIFTH[0] - FOURTH[6];  // Assuming there is a connection between arrays
+					break;
+			case 'x':
+					note = FIFTH[1];
+					up_diff = FIFTH[2] - FIFTH[1];
+					down_diff = FIFTH[1] - FIFTH[0];
+					break;
+			case 'c':
+					note = FIFTH[2];
+					up_diff = FIFTH[3] - FIFTH[2];
+					down_diff = FIFTH[2] - FIFTH[1];
+					break;
+			case 'v':
+					note = FIFTH[3];
+					up_diff = FIFTH[4] - FIFTH[3];
+					down_diff = FIFTH[3] - FIFTH[2];
+					break;
+			case 'b':
+					note = FIFTH[4];
+					up_diff = FIFTH[5] - FIFTH[4];
+					down_diff = FIFTH[4] - FIFTH[3];
+					break;
+			case 'n':
+					note = FIFTH[5];
+					up_diff = FIFTH[6] - FIFTH[5];
+					down_diff = FIFTH[5] - FIFTH[4];
+					break;
+			case 'm':
+					note = FIFTH[6];
+					down_diff = FIFTH[6] - FIFTH[5];
+					break;
+			default:
+					note = 0;
+					break;
+}
+	
+	volatile double weight = ((sharpen_flatten[0] - 0x30)/10) + ((sharpen_flatten[1]-0x30)/100) + ((sharpen_flatten[2]-0x30)/1000);
+	// flatten
+	volatile bool weight_passed =weight >0.05;
+	if (weight_passed){
+		double weight1 = weight;
+	}
+	// if (sign_of_weight == ','){
+	//	note -= (uint8_t)(down_diff*weight);
+	// } else{ // sharpen
+	//	note += (uint8_t)(up_diff*weight);
+	// }
+	int empty_loop = (4000000/note);
 	for (int i = 0; i < note; ++i)
 	{
-		for (int j = 0; j < 9091; ++j)
+		for (int j = 0; j < empty_loop; ++j)
 		{
 			continue;
 		}

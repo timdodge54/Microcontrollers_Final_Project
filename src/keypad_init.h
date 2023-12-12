@@ -5,9 +5,15 @@
 #define __STM32L476R_NUCLEO_keypad_init_H
 // List of freqencies for each note in the octave
 // [C, D, E, F, G, A, B]
-const int static THIRD[7] = {131, 147, 165, 175, 196, 220, 247};
-const int static FOURTH[7] = {262, 294, 330, 349, 392, 440, 494};
-const int static FIFTH[7] = {523, 587, 659, 699, 784, 880, 988};
+const int static THIRD[7] = {1450, 1288 , 1153, 1085, 966 , 860, 764};
+
+const int static FIFTH[7] = {359, 318, 284, 267, 237, 211, 187};
+//const int static FIFTH[7] = {523, 587, 659, 699, 784, 880, 988};
+
+const int static FOURTH[7] = {724, 642, 572, 540, 480, 427, 380};
+
+
+
 volatile int static PREVIOUS_NOTE = 0;
 
 

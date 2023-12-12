@@ -6,6 +6,8 @@
 
 
 uint8_t volatile static note_buffer;
+uint8_t volatile static sharpen_flatten[3] = {0x30,0x30,0x30};
+uint8_t volatile static sign_of_weight = ',';
 uint32_t volatile static note_counter = 1;
 
 void USART_Init(USART_TypeDef * USARTx);
@@ -16,7 +18,7 @@ void ADC1_wakeup(void);
 void TIM4_Init(void);
 void ADC_init(void);
 void UReceive(USART_TypeDef *USARTx, uint8_t * buffer, uint32_t nBytes);
-void USART_IRQHandler(void);
+void USART2_IRQHandler(void);
 void buzzer_setup(void);
 void buzzer(void);
 #endif
